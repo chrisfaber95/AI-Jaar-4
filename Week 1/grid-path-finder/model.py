@@ -81,16 +81,16 @@ def UCS(app, start, goal):
                 visited[neighbor] = new_cost
                 frontier.put(neighbor, new_cost + visited[node])
                 path[neighbor] = node
-                #app.plot_node(node, cf.PATH_C)
-                #app.plot_line_segment(node[0], node[1], neighbor[0], neighbor[1], color=cf.PATH_C)
+                app.plot_node(node, cf.PATH_C)
+                app.plot_line_segment(node[0], node[1], neighbor[0], neighbor[1], color=cf.PATH_C)
         count += 1
     return path
 
 def a_star(app, start, goal):
     
-    def heuristic(node1, node2):
+    def heuristic(node1, goal):
         (x1, y1) = node1
-        (x2, y2) = node2
+        (x2, y2) = goal
         heuristic = abs(x1-x2) + abs(y1-y2)
         return heuristic
 
@@ -110,11 +110,13 @@ def a_star(app, start, goal):
         for neighbor in get_neighbors(node):
             if is_node_blocked(node):
                 continue
-            new_cost = visited[node] + heuristic(node, neighbor)
+            new_cost = visited[node] + heuristic(neighbor, goal)
             if(neighbor not in visited) or new_cost < visited[node]:
                 visited[neighbor] = new_cost
                 frontier.put(neighbor, new_cost + visited[node])
                 path[neighbor] = node
+                app.plot_node(node, cf.PATH_C)
+                app.plot_line_segment(node[0], node[1], neighbor[0], neighbor[1], color=cf.PATH_C)
         count += 1
     return path
 
