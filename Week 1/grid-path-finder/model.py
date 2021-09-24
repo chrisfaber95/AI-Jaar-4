@@ -83,6 +83,7 @@ def UCS(app, start, goal):
                 path[neighbor] = node
                 app.plot_node(node, cf.PATH_C)
                 app.plot_line_segment(node[0], node[1], neighbor[0], neighbor[1], color=cf.PATH_C)
+                app.pause()
         count += 1
     return path
 
@@ -117,6 +118,7 @@ def a_star(app, start, goal):
                 path[neighbor] = node
                 app.plot_node(node, cf.PATH_C)
                 app.plot_line_segment(node[0], node[1], neighbor[0], neighbor[1], color=cf.PATH_C)
+                app.pause()
         count += 1
     return path
 
