@@ -51,5 +51,5 @@ solutions = find_solutions(current_state)
 for i, solution in enumerate(solutions):
   print(f'Solution {i+1}, length {len(solution)}')
   for state in solution:
-    print(state)
+    print(f'{"".join(state[0])}||{"".join(state[1])}')
 print()
