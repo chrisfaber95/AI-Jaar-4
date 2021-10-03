@@ -1,6 +1,7 @@
 import random
 import itertools
 import math
+import numpy
 
 MAX_DEPTH = 3
 
@@ -150,4 +151,59 @@ def get_random_move():
     return random.choice(list(MERGE_FUNCTIONS.keys()))
 
 def get_expectimax_move(b):
-    pass
+    bestmove = [None, 0]
+    moves = {}
+    for move in list(MERGE_FUNCTIONS.keys()):
+        scoring =  expectimax(b, 3, [])
+        moves[move] = { "max":max(scoring), "leng": len(scoring), "average": max(scoring)/len(scoring)}
+    
+    print(moves)
+    movetype = {}
+    max_avarage = 0
+    for item in moves:
+        print(item)
+        if moves[item]["average"] >= max_avarage:
+            movetype[item] = moves[item]
+    #        continue
+    print(movetype)
+
+    return random.choice(list(movetype))
+
+def expectimax(board, depth, scores):
+    if depth <= 0 or game_state(board) ==  2048:
+        scores.append(calc_move_score(board))
+        return scores
+    else:
+        for child in list(MERGE_FUNCTIONS.keys()):
+            childboard = play_move(board, child)
+            if(childboard == board):
+                scores.append(calc_move_score(board))
+                return scores
+            else:
+                expectimax(childboard, depth -1, scores)
+    return scores
+
+def calc_move_score(board):
+    print(board)
+    score = 0
+    maxscore = numpy.amax(board)
+    result = numpy.where(board == maxscore)
+    if maxscore == 2048:
+        score += 10000
+    for item in result:
+        score += sum(item)
+    highloc = list(zip(result[0], result[1]))
+    
+    for item in highloc:
+        print(sum(list(item)))
+        if sum(list(item)) == 0: score += 100 * maxscore
+        elif sum(list(item)) == 1: score += 75 * maxscore
+        elif sum(list(item)) == 2: score += 50 * maxscore
+        elif sum(list(item)) == 3: score += 25 * maxscore
+        elif sum(list(item)) == 4: score += 10 * maxscore
+        elif sum(list(item)) == 5: score += 5 * maxscore
+        elif sum(list(item)) == 6: score += 0 * maxscore
+    
+    score = (100 * float(16 - len(highloc))/float(16)) * score
+    print(score)
+    return score

@@ -87,10 +87,7 @@ def removeIntersects(route):
         if(index < len(route) - 3):
             if doIntersect(y, route[index + 1], route[-2], route[-1]):
                 print("intersecting1111", route[index], route[index+1], route[-2], route[-1])
-                if distance(route[index + 1], route[-2]) < distance(route[index + 1], route[-1]):
-                    route[index], route[-2] = route[-2], route[index]
-                else:
-                    route[index+1], route[-1] = route[-1], route[index+1]
+                route[index+1], route[-2] = route[-2], route[index+1]
                 print("intersecting2222", route[index], route[index+1], route[-2], route[-1])
     return route
 
@@ -98,7 +95,7 @@ def onSegment(p, q, r):
     if ( (q.x <= max(p.x, r.x)) and (q.x >= min(p.x, r.x)) and
            (q.y <= max(p.y, r.y)) and (q.y >= min(p.y, r.y))):
         return True
-    return False4
+    return False
  
 def orientation(p, q, r):
      
