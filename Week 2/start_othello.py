@@ -270,9 +270,9 @@ def create_time_limitter(limit):
 
 def board_score_heuristic(player, board):
     scoring = score(player, board)
-    for i in [11, 18, 89, 82]:
+    for i in [11, 18, 82, 89]:
         if board[i] == player:
-            scoring += 8
+            scoring += 10
     return scoring
 
 
