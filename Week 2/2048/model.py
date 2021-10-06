@@ -3,8 +3,6 @@ import itertools
 import math
 import numpy
 
-MAX_DEPTH = 3
-
 def merge_left(b):
     # merge the board left
     # this function is reused in the other merges
@@ -150,60 +148,63 @@ def test():
 def get_random_move():
     return random.choice(list(MERGE_FUNCTIONS.keys()))
 
-def get_expectimax_move(b):
-    bestmove = [None, 0]
-    moves = {}
-    for move in list(MERGE_FUNCTIONS.keys()):
-        scoring =  expectimax(b, 3, [])
-        moves[move] = { "max":max(scoring), "leng": len(scoring), "average": max(scoring)/len(scoring)}
+MAX_DEPTH = 3
+def get_expectimax_move(board):
+    move, score = expectimax(board, MAX_DEPTH)
+    #  print(f'[RESULT]:\t{move}  {score}')
+    return move
+
+def expectimax(board, depth):
+    if depth <= 0: # or game_state(board) == 'win':
+        return 'left', calc_move_score(board)  # maximale diepte bereikt, geef de bordwaarde terug
     
-    print(moves)
-    movetype = {}
-    max_avarage = 0
-    for item in moves:
-        print(item)
-        if moves[item]["average"] >= max_avarage:
-            movetype[item] = moves[item]
-    #        continue
-    print(movetype)
+    top_move = 'left'
+    top_score = 0
+    for direction, merge in MERGE_FUNCTIONS.items():
+        score = 0
+        new_board = merge(board)
+        if new_board == board:
+            continue
 
-    return random.choice(list(movetype))
+        free_tiles = get_free_tiles(new_board)
+        if len(free_tiles) == 0:
+            score = expectimax(new_board, depth-1)[1]
+        else:
+            if len(free_tiles) > 7:
+                free_tiles = free_tiles[:len(free_tiles)//2]
+            for row, col in free_tiles:
+                tile_score = 0
+                for val, prob in [(2, 0.9), (4, 0.1)]:
+                        new_board[row][col] = val
+                        tile_score += prob  * expectimax(new_board, depth-1)[1]
+                        new_board[row][col] = 0
+                score += tile_score / 2  # voor een correcte oplossing moet dit door 2 gedeeld worden, echter wanneer dit niet gedaan wordt is er een 100% winst ratio (score wordt omlaag gehaald door 10% van 4)
+            score = score / len(free_tiles)
 
-def expectimax(board, depth, scores):
-    if depth <= 0 or game_state(board) ==  2048:
-        scores.append(calc_move_score(board))
-        return scores
-    else:
-        for child in list(MERGE_FUNCTIONS.keys()):
-            childboard = play_move(board, child)
-            if(childboard == board):
-                scores.append(calc_move_score(board))
-                return scores
-            else:
-                expectimax(childboard, depth -1, scores)
-    return scores
+        if score > top_score or top_score == 0:
+            top_move = direction
+            top_score = score
+    return top_move, top_score
+
+def get_free_tiles(board):
+    tiles = []
+    for row, col in itertools.product(range(4), range(4)):
+        if board[row][col] == 0:
+            tiles.append((row, col))
+    return tiles
+
+TILE_VALUE_MATRIX = [
+        [0.1, 0.2, 0.9, 1.0],
+        [0.2, 0.4, 0.8, 1.0],
+        [0.5, 0.5, 0.7, 1.1],
+        [0.5, 0.5, 0.6, 1.3],
+        ]
 
 def calc_move_score(board):
-    print(board)
-    score = 0
-    maxscore = numpy.amax(board)
-    result = numpy.where(board == maxscore)
-    if maxscore == 2048:
-        score += 10000
-    for item in result:
-        score += sum(item)
-    highloc = list(zip(result[0], result[1]))
-    
-    for item in highloc:
-        print(sum(list(item)))
-        if sum(list(item)) == 0: score += 100 * maxscore
-        elif sum(list(item)) == 1: score += 75 * maxscore
-        elif sum(list(item)) == 2: score += 50 * maxscore
-        elif sum(list(item)) == 3: score += 25 * maxscore
-        elif sum(list(item)) == 4: score += 10 * maxscore
-        elif sum(list(item)) == 5: score += 5 * maxscore
-        elif sum(list(item)) == 6: score += 0 * maxscore
-    
-    score = (100 * float(16 - len(highloc))/float(16)) * score
-    print(score)
-    return score
+    if not move_exists(board):
+        return 1
+    board_score = 0
+    for row, multipliers in zip(board, TILE_VALUE_MATRIX):
+        row_score = sum([ tile * multiplier for tile, multiplier in zip(row, multipliers)])
+        board_score += row_score
+    return board_score

@@ -111,6 +111,7 @@ def print_solution(solution, row_has_1_at):
 
 def solve(row_valid, col_valid, row_has_1_at, col_has_1_at, solution):
     # using Algoritm X, find all solutions (= set of rows) given valid/uncovered rows and cols
+    
     pass
 
 

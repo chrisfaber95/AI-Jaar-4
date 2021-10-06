@@ -82,6 +82,6 @@ if __name__ == '__main__':
 	  ['H', 'U', 'I', 'S']
 	]
 
-	prefix = make_prefixes('words_EN.txt')
+	prefix = make_prefixes('words.txt')
 	results = find_all(board)
 	print_results(results)

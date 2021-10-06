@@ -89,7 +89,11 @@ def solve(position, next_clue_in_list):
 				for item in clues:
 					if item > len(stepcount):
 						next = item
-						break			
+						break
+				print(next)
+				print("000000")
+				printBoard(board)
+				print("-------------")		
 				path.append(newPosition)
 				solve(newPosition, next)
 			else:
@@ -104,12 +108,18 @@ def solve(position, next_clue_in_list):
 						path.pop()
 						stepcount.pop()
 						stepcount[-1] += 1
+						print("000000")
+						printBoard(board)
+						print("-------------")
 						solve(path[-1], next_clue_in_list)
 					elif len(stepcount) +1 < next_clue_in_list:
 						stepcount.append(0)
 						board[node[1][0]][node[1][1]] = len(stepcount)
 						newPosition = (node[1][0], node[1][1])
 						path.append(newPosition)
+						print("000000")
+						printBoard(board)
+						print("-------------")
 						solve(newPosition, next_clue_in_list)
 				elif node[0] != 0:
 					if stepcount[-1] < len(k)-1:
@@ -125,6 +135,9 @@ def solve(position, next_clue_in_list):
 						path.pop()
 						stepcount.pop()
 						stepcount[-1] += 1
+						print("000000")
+						printBoard(board)
+						print("-------------")
 						solve(path[-1], next_clue_in_list)
 					
 s = """
