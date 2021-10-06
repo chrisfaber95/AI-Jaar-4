@@ -84,12 +84,23 @@ def nearest_neighbor_w_intersect(cities):
 def removeIntersects(route):
     intersecting = 0
     for index, y in enumerate(route):
-        if(index < len(route) - 3):
-            if doIntersect(y, route[index + 1], route[-2], route[-1]):
+        if(index < len(route) - 2):
+            if intersect(y, route[index + 1], route[-2], route[-1]):
                 print("intersecting1111", route[index], route[index+1], route[-2], route[-1])
-                route[index+1], route[-2] = route[-2], route[index+1]
+                switching1 = route[index+1]
+                switching2 = route[-2]
+                route[index+1] = switching2
+                route[-2] = switching1
                 print("intersecting2222", route[index], route[index+1], route[-2], route[-1])
+                removeIntersects(route)
     return route
+
+def ccw(A,B,C):
+    return (C.y-A.y) * (B.x-A.x) > (B.y-A.y) * (C.x-A.x)
+
+# Return true if line segments AB and CD intersect
+def intersect(A,B,C,D):
+    return ccw(A,C,D) != ccw(B,C,D) and ccw(A,B,C) != ccw(A,B,D)
 
 def onSegment(p, q, r):
     if ( (q.x <= max(p.x, r.x)) and (q.x >= min(p.x, r.x)) and
@@ -131,7 +142,7 @@ def doIntersect(p1,q1,p2,q2):
 # 10 city tour with length 3062.4 in 0.000 secs for nearest_neighbor
 #10 city tour with length 2305.8 in 1.766 secs for try_all_tours
 #opdracht b: 500 city tour with length 22253.4 in 0.047 secs for nearest_neighbor
-generated = make_cities(500)
+generated = make_cities(20)
 plot_tsp(nearest_neighbor, generated)
 # complexiteit 2-opt: O = n^3
 plot_tsp(nearest_neighbor_w_intersect, generated)

@@ -71,8 +71,11 @@ def print_results(results):
     for k in results:
         r.append(k)
     r.sort()
+    unique = set()
     for k in r:
-        print(f'{k[0]}  {k[1]}')
+        unique.add(k[0])
+        #print(f'{k[0]}  {k[1]}')
+    print(unique)
 
 if __name__ == '__main__':
 	board = [
