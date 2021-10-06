@@ -84,7 +84,7 @@ def nearest_neighbor_w_intersect(cities):
 def removeIntersects(route):
     intersecting = 0
     for index, y in enumerate(route):
-        if(index < len(route) - 2):
+        if(index < len(route) - 3):
             if intersect(y, route[index + 1], route[-2], route[-1]):
                 print("intersecting1111", route[index], route[index+1], route[-2], route[-1])
                 switching1 = route[index+1]

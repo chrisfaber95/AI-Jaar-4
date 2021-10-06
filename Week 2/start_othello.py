@@ -29,6 +29,8 @@ This representation has two useful properties:
    between square locations and list indexes.
 2. Operations involving bounds checking are slightly simpler.
 """
+import random
+import time
 
 # The black and white pieces represent the two players.
 EMPTY, BLACK, WHITE, OUTER = '.', '@', 'o', '?'
@@ -153,110 +155,125 @@ def any_legal_move(player, board):
 # - Apply it to the board.
 # - Switch players. If the game is over, get the final score.
 
-CURRENT_PLAYER = BLACK
-BLACK_STRATEGY = "random"
-WHITE_STRATEGY = "random"
-
 def play(black_strategy, white_strategy):
-    global CURRENT_PLAYER
-    BLACK_STRATEGY = black_strategy
-    WHITE_STRATEGY = white_strategy
+    # play a game of Othello and return the final board and score
     board = initial_board()
+    player = BLACK
+    strategies = { BLACK: black_strategy, WHITE: white_strategy }
+
+    while player:
+        move = get_move(strategies[player], player, board)
+        board = make_move(move, player, board)
+        print(f'{PLAYERS[player]} plays {move}')
+        player = next_player(board, player)
+
+    black_score = score(BLACK, board)
+    white_score = score(WHITE, board)
+    winner = BLACK if black_score > white_score else WHITE
+    if black_score == white_score:
+        print(f'I\'ts a draw! ({black_score} vs {white_score})')
+    else:
+        print(f'{PLAYERS[winner]} wins! ({black_score} vs {white_score})')
     print(print_board(board))
-    while True:
-        print(CURRENT_PLAYER)
-        if CURRENT_PLAYER == None: break
-        print("Player:" + CURRENT_PLAYER)
-        #score(BLACK, board)
-        print("Score:" + str(score(BLACK, board)) + "-" + str(score(WHITE, board)))
-        if CURRENT_PLAYER == BLACK: get_move(BLACK_STRATEGY, CURRENT_PLAYER, board)
-        elif CURRENT_PLAYER == WHITE: get_move(WHITE_STRATEGY, CURRENT_PLAYER, board)
-        print(print_board(board))
-        next_player(board, CURRENT_PLAYER)
+
+    return (black_score, white_score)
 
 def next_player(board, prev_player):
     # which player should move next?  Returns None if no legal moves exist
-	global CURRENT_PLAYER
-	if prev_player == BLACK: CURRENT_PLAYER = WHITE
-	elif prev_player == WHITE: CURRENT_PLAYER = BLACK
-	if any_legal_move(CURRENT_PLAYER, board) == False:
-		CURRENT_PLAYER = None
+    new_player = opponent(prev_player)
+    if any_legal_move(new_player, board):
+        return new_player
+    elif any_legal_move(prev_player, board):
+        return prev_player
+    return None
 
 def get_move(strategy, player, board):
-	if strategy == "random":
-		randomStrategy(player, board)
-	elif strategy == "heuristic":
-		heuristic(player, board)
-	elif strategy == "minimax":
-		minimax(player, board, 20)
+    # call strategy(player, board) to get a move
+    move = strategy(player, board)
+    if is_legal(move, player, board):
+        return move
+    raise IllegalMoveError(player, move, board)
 
 def score(player, board):
-	return board.count(player)
+    # compute player's score (number of player's pieces minus opponent's)
+    return board.count(player) - board.count(opponent(player))
 
-def movescore(player, board):
-	return board.count(player) - board.count(opponent(player))
 # Play strategies
+def player_strategy(player, board):
+    moves = legal_moves(player, board)
+    print(print_board(board))
+    print('legal moves:', ', '.join(map(str, moves)))
+    move = -1
+    while move < 0:
+        text = input('Your move: ')
+        try:
+            move = int(text)
+        except ValueError:
+            print('Move must be a number')
+            continue
+        if move in moves:
+            return move
+        else:
+            print(move, 'is not a valid move')
+            move = -1
 
-import random
-import time
-def randomStrategy(player, board):
-	n = random.choice(legal_moves(player, board))
-	make_move(n, player, board)
-	
-#hoogste max steps gezien is 44 voor maximaal 2 seconde.
-def minimax(player, board, maxDepth):
-    global CURRENT_PLAYER
-    stepcount = 0
-    best = (None, 0)
-    copyBoard = board.copy()
-    start = time.time()
-    for move in legal_moves(player, board):
-        for i, item in enumerate(legal_moves(player, copyBoard)):
-            counter = 0
-            movedata = evaluateMoves(item, player, copyBoard)
-            if movedata[0][1] > best[1]:
-                best = (move, movedata[0][1])
-                copyBoard = movedata[1]
-            if player == BLACK: player = WHITE
-            elif player == WHITE: player = BLACK
-            counter += 1
-            if counter >= maxDepth:
-                break
-            stepcount += 1
-            if time.time() - start > 2:
-                break
-            if stepcount == maxDepth:
-                break
+def random_move_strategy(player, board):
+    moves = legal_moves(player, board)
+    return random.choice(moves)
+
+MAX_DEPTH = 3
+def minimax_strategy(player, board):
+    heuristic = lambda b: board_score_heuristic(player, b)
+    t1 = time.time()
+    # ga er vanuit dat er minstens een geldige zet is omdat het onze beurt is
+    moves = legal_moves(player, board)
+    top_move = None  
+    top_score = 0
+    for move in moves:
+        new_board = make_move(move, player, board[:])
+        s1 = time.time()
+        score = basic_minimax(opponent(player), new_board, MAX_DEPTH, False, heuristic, None)
+        s2 = time.time()
+        print(f'[MINIMAX] Move {move}  Score: {score}  Time: {(s2 - s1) * 1000}')
+        if score > top_score or not top_move:
+            top_move = move
+            top_score = score
+    t2 = time.time()
+    print(f'[MINIMAX] Result: {top_move}  Total time: {(t2 - t1) * 1000}')
+    return top_move
     
-    print("max-steps:", stepcount)
-    make_move(best[0], CURRENT_PLAYER, board)
+# TODO: pruning en betere heuristieke functie!
+def basic_minimax(player, board, depth, max_score, heuristic, time_limit):
+    child_nodes = legal_moves(player, board)
 
-def evaluateMoves(first, player, board):
-	global CURRENT_PLAYER
-	bestmove = [None, 0]
-	make_move(first, player, board)
-	score1 = 0
-	score1 += movescore(player, board)
-	if first == any([11, 18, 89, 82]) and player == CURRENT_PLAYER:
-		score1 += 1000
-	elif first == any([11, 18, 89, 82]) and player != CURRENT_PLAYER:
-		return bestmove, board
-	if movescore(player, board) > bestmove[1]:
-		bestmove[0] = first
-		bestmove[1] = score1
-	
-	return bestmove, board
+    # Basecase, recursie diepte en spel einde
+    if depth <= 0 or (len(child_nodes) < 1 and not any_legal_move(opponent(player), board)):
+        return heuristic(board)
 
-def heuristic(player, board):
-	bestmove = (None, 0)
-	for move in legal_moves(player, board):
-		copyBoard = board.copy()
-		make_move(move, player, copyBoard)
-		if score(player, copyBoard) > bestmove[1]:
-			bestmove = (move, score(player, copyBoard))
-	if bestmove[0] == None:
-		return False
-	else:
-		make_move(bestmove[0], player, board)
+    # Als deze speler geen zet meer kan doen, dan kan de tegenstander wel
+    if len(child_nodes) == 0:
+        return basic_minimax(opponent(player), board, depth, not max_score, heuristic, time_limit)
 
-play("random", "minimax")
+    scores = [
+            basic_minimax(opponent(player), make_move(node, player, board[:]), depth-1, not max_score, heuristic, time_limit)
+            for node in child_nodes]
+
+    if max_score:
+        return max(scores)
+    else:
+        return min(scores)
+
+def create_time_limitter(limit):
+    "Create a function that returns True once `limit` in seconds has passed."
+    starting_time = time.time()
+    return lambda: time.time() - starting_time > limit
+
+def board_score_heuristic(player, board):
+    scoring = score(player, board)
+    for i in [11, 18, 89, 82]:
+        if board[i] == player:
+            scoring += 8
+    return scoring
+
+
+play(random_move_strategy, minimax_strategy)
