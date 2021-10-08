@@ -95,7 +95,7 @@ def removeIntersects(route):
                 removeIntersects(route)
     return route
 
-def ccw(A,B,C):
+def shorter_route(A,B,C):
     return (C.y-A.y) * (B.x-A.x) > (B.y-A.y) * (C.x-A.x)
 
 # Return true if line segments AB and CD intersect

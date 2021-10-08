@@ -33,6 +33,7 @@ def next_states(state):
             new_state[farmer].remove(actor)
             new_state[no_farmer].add(actor)
         return new_state
+        
     possible_states = list()
     for actor in state[farmer]:
         possible_states.append(move(['F', actor]))
