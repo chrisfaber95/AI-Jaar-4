@@ -78,108 +78,9 @@ def no_conflict(grid, c, val):
     return True
 
 def solve(grid):
-    display(grid)
-    dfs(grid, 'A1')
-    #ac(grid, 'A1')
     # backtracking search for a solution (DFS)
     # your code here
-
-def next_spot(dict, key):
-    keys = iter(dict)
-    key in keys
-    return next(keys, False)
-
-def dfs1(grid, loc):
-    #print(loc)
-    #laatste locatie
-    if loc == 'I9':
-        for digit in range(1, len(digits), 1):
-            if no_conflict(grid, loc,str(digit)):
-                grid[loc] = str(digit)
-                display(grid)
-                return grid
-    #ga verder als al ingevuld
-    if grid[loc] != digits:
-        return dfs(grid, next_spot(grid, loc))
-    for digit in range(1, 10, 1):
-        if no_conflict(grid, loc,str(digit)):
-            grid[loc] = str(digit)
-            if dfs(grid, next_spot(grid, loc)):
-                return True
-        grid[loc]=digits
-    return False
-
-def dfs(grid, loc):
-    if loc == 'I9' :
-        for digit in grid[loc]:
-            newgrid = grid.copy()
-            newgrid[loc] = digit
-            if no_conflict(newgrid, loc, str(digit)):
-                display(newgrid)
-                return newgrid
-    for digit in grid[loc]:
-        newgrid = grid.copy()
-        newgrid[loc] = digit
-        if no_conflict(newgrid, loc, str(digit)):
-            if dfs(newgrid, next_spot(newgrid, loc)):
-                return True
-    return False
-
-
-def ac1(grid, loc):
-    if loc == 'I9':
-        for digit in range(1, len(digits), 1):
-            if no_conflict(grid, loc,str(digit)):
-                grid[loc] = str(digit)
-                display(grid)
-                return grid
-    #ga verder als al ingevuld
-    if grid[loc] != digits:
-        return ac(grid, next_spot(grid, loc))
-    for digit in range(1, 10, 1):
-        if no_conflict(grid, loc,str(digit)):
-            new_grid = grid.copy()
-            new_grid[loc] = str(digit)
-            if make_ac(new_grid, loc, digit):
-                display(new_grid)
-                if ac(new_grid, next_spot(new_grid, loc)):
-                    return True
-        grid[loc]=digits
-    return False
-
-
-def ac(grid, loc):
-    if loc == 'I9' :
-        for digit in grid[loc]:
-            newgrid = grid.copy()
-            newgrid[loc] = digit
-            if no_conflict(newgrid, loc, str(digit)):
-                display(newgrid)
-    else:
-        if len(grid[loc]) != 1:
-            for digit in grid[loc]:
-                newgrid = grid.copy()
-                newgrid[loc] = digit
-                if no_conflict(newgrid, loc, str(digit)):
-                    dfs(newgrid, next_spot(newgrid, loc))
-        else:
-            dfs(grid, next_spot(grid, loc))
-
-def make_ac(grid, c, v):
-    for p in peers[c]:
-        if str(v) in grid[p]:
-            if len(grid[p]) <= 1:
-                return False # conflict
-            else:
-                grid[p].replace(str(v), '')
-    for c2 in peers:
-        if c2 != c:
-            for p2 in peers[c2]:
-                if len(grid[p2]) <= 1:
-                    if make_ac(grid, c2, grid[p2]) == False:
-                        return False
-    return True
-
+    pass
 
 # minimum nr of clues for a unique solution is 17
 slist = [None for x in range(20)]
@@ -205,14 +106,13 @@ slist[18]= '3.6.7...........518.........1.4.5...7.....6.....2......2.....4.....8
 slist[19]= '1.....3.8.7.4..............2.3.1...........958.........5.6...7.....8.2...4.......'
 
 for i,sudo in enumerate(slist):
-    if i < 20:
-        print('*** sudoku {0} ***'.format(i))
-        print(sudo)
-        d = parse_string_to_dict(sudo)
-        start_time = time.time()
-        solve(d)
-        end_time = time.time()
-        hours, rem = divmod(end_time-start_time, 3600)
-        minutes, seconds = divmod(rem, 60)
-        print("duration [hh:mm:ss.ddd]: {:0>2}:{:0>2}:{:06.3f}".format(int(hours),int(minutes),seconds))
-        print()
+    print('*** sudoku {0} ***'.format(i))
+    print(sudo)
+    d = parse_string_to_dict(sudo)
+    start_time = time.time()
+    solve(d)
+    end_time = time.time()
+    hours, rem = divmod(end_time-start_time, 3600)
+    minutes, seconds = divmod(rem, 60)
+    print("duration [hh:mm:ss.ddd]: {:0>2}:{:0>2}:{:06.3f}".format(int(hours),int(minutes),seconds))
+    print()
