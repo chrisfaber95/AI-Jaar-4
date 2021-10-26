@@ -16,24 +16,25 @@ def is_valid(b):
     #print(b)
     for i, type in enumerate(b):
         #print(i, type)
-        if(type != '.'):
+        if(b[i] != '.'):
             #print(b, neighbors[i])
             neigh = []
             for j in neighbors[i]:
                 if len(b) > j:
-                    neigh.append(b[j])
+                    if b[j] != '.':
+                        neigh.append(b[j])
             #neigh = [b[j] for j in neighbors[i]]
-            #print(b, neigh)
-            if type in neigh:
+            if b[i] in neigh and len(neigh) == len(neighbors[i]):
                 return False
-            if type == 'A' and 'Q' in neigh:
+            if len(neigh) != 0 and b[i] == 'A' and 'Q' in neigh and len(neigh) == len(neighbors[i]):
                 return False
-            if type == 'A' and 'K' not in neigh:
+            if len(neigh) != 0 and b[i] == 'A' and 'K' not in neigh and len(neigh) == len(neighbors[i]):
                 return False
-            if type == 'K' and 'Q' not in neigh:
+            if len(neigh) != 0 and b[i] == 'K' and 'Q' not in neigh and len(neigh) == len(neighbors[i]):
                 return False
-            if type == 'Q' and 'J' not in neigh:
+            if len(neigh) != 0 and b[i] == 'Q' and 'J' not in neigh and len(neigh) == len(neighbors[i]):
                 return False
+            #print("234455----" + b[i])
     return True
 
 
@@ -53,20 +54,39 @@ def test():
     print('t ',is_valid({0: 'Q', 1: 'Q', 2: '.', 3: '.', 4: '.', 5: '.', 6: '.', 7: '.'}))
 
 start = {}
-def dfs(dict, path=()):
+def dfs1(dict, cardslist, path=()):
     new_path = path + (dict, )
-    #print(dict)
-    if len(dict) == len(cards):
+    print('22222' + str(new_path))
+    if (len(dict) == len(cards) and is_valid(dict)):
         print(dict)
         return True
     dict[len(dict)] = ''
-    print(dict, cards)
-    for i, v in enumerate(cards):
+    for i, v in enumerate(cardslist):
         dict[len(dict)-1] = v
-        #print(dict)
+        newcards = cardslist.copy()
+        print('----1111' + str(newcards))
+        newcards.pop(i)
+        print()
+        print('----' + str(newcards))
+        print()
         if dict not in path and is_valid(dict):
-            dfs(dict, new_path)
+            print(dict)
+            dfs(dict, newcards, new_path)
+        else:
+            return False
     #return False
+
+def dfs(dict, cardlist):
+    if(len(cardlist) < 1 and is_valid(dict)):
+        print("-----"+str(dict))
+        return True
+    for i, v in enumerate(cardlist):
+        dict[len(dict)-len(cardlist)] = v
+        remain = cardlist.copy()
+        remain.pop(i)
+        newdict = dict.copy()
+        if is_valid(newdict):
+            dfs(newdict, remain)
 
 count = 0
 
@@ -90,8 +110,8 @@ for f in set(itertools.permutations(cards, len(start_board))):
 print("Valid options: " +str(count))
 
 
-
-dfs(start)
+#test()
+dfs(start_board, cards)
 #for i, solution in enumerate(solutions):
 #  print(f'Solution {i+1}, length {len(solution)}')
 #print()
