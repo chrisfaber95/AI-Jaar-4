@@ -79,14 +79,14 @@ def no_conflict(grid, c, val):
 
 def solve(grid):
     display(grid)
-    dfs(grid, 'A1')
-    #ac(grid, 'A1')
+    #dfs(grid, 'A1', [])
+    ac(grid, 'A1', [])
     # backtracking search for a solution (DFS)
     # your code here
 
 def next_spot(dict, key):
     keys = iter(dict)
-    key in keys
+    key in keys 
     return next(keys, False)
 
 def dfs1(grid, loc):
@@ -109,19 +109,24 @@ def dfs1(grid, loc):
         grid[loc]=digits
     return False
 
-def dfs(grid, loc):
+def dfs(grid, loc, path):
     if loc == 'I9' :
         for digit in grid[loc]:
             newgrid = grid.copy()
             newgrid[loc] = digit
             if no_conflict(newgrid, loc, str(digit)):
                 display(newgrid)
-                return newgrid
-    for digit in grid[loc]:
-        newgrid = grid.copy()
-        newgrid[loc] = digit
-        if no_conflict(newgrid, loc, str(digit)):
-            if dfs(newgrid, next_spot(newgrid, loc)):
+                return True
+    newpath = path.copy()
+    newpath.append(loc)
+    for digit in grid[newpath[-1]]:
+        if no_conflict(grid, loc, str(digit)):
+            newgrid = grid.copy()
+            newgrid[newpath[-1]] = digit
+            temp = next_spot(newgrid, loc)
+            while len(newgrid[temp]) == 1 and temp != 'I9':
+                temp = next_spot(newgrid, temp)
+            if dfs(newgrid, temp, newpath):
                 return True
     return False
 
@@ -148,22 +153,27 @@ def ac1(grid, loc):
     return False
 
 
-def ac(grid, loc):
+def ac(grid, loc, path):
     if loc == 'I9' :
         for digit in grid[loc]:
             newgrid = grid.copy()
             newgrid[loc] = digit
             if no_conflict(newgrid, loc, str(digit)):
                 display(newgrid)
-    else:
-        if len(grid[loc]) != 1:
-            for digit in grid[loc]:
-                newgrid = grid.copy()
-                newgrid[loc] = digit
-                if no_conflict(newgrid, loc, str(digit)):
-                    dfs(newgrid, next_spot(newgrid, loc))
-        else:
-            dfs(grid, next_spot(grid, loc))
+                return True
+    newpath = path.copy()
+    newpath.append(loc)
+    for digit in grid[newpath[-1]]:
+        if no_conflict(grid, newpath[-1], str(digit)):
+            newgrid = grid.copy()
+            newgrid[newpath[-1]] = digit
+            updatedgrid = make_ac(newgrid, newpath[-1], digit)
+            temp = next_spot(updatedgrid, loc)
+            while len(updatedgrid[temp]) == 1 and temp != 'I9':
+                temp = next_spot(updatedgrid, temp)
+            if ac(updatedgrid, temp, newpath):
+                return True
+    return False
 
 def make_ac(grid, c, v):
     for p in peers[c]:
@@ -171,14 +181,15 @@ def make_ac(grid, c, v):
             if len(grid[p]) <= 1:
                 return False # conflict
             else:
-                grid[p].replace(str(v), '')
+                newcode = grid[p].replace(str(v), '')
+                grid[p] = newcode
     for c2 in peers:
         if c2 != c:
             for p2 in peers[c2]:
                 if len(grid[p2]) <= 1:
                     if make_ac(grid, c2, grid[p2]) == False:
-                        return False
-    return True
+                        return grid
+    return grid
 
 
 # minimum nr of clues for a unique solution is 17
