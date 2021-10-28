@@ -75,8 +75,10 @@ def dfs1(dict, cardslist, path=()):
         else:
             return False
     #return False
-
+count1 = 0
 def dfs(dict, cardlist):
+    global count1
+    print(count1)
     if(len(cardlist) < 1 and is_valid(dict)):
         print("-----"+str(dict))
         return True
@@ -85,6 +87,7 @@ def dfs(dict, cardlist):
         remain = cardlist.copy()
         remain.pop(i)
         newdict = dict.copy()
+        count1 += 1
         if is_valid(newdict):
             dfs(newdict, remain)
 
