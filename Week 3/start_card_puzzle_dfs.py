@@ -78,7 +78,7 @@ def dfs1(dict, cardslist, path=()):
 count1 = 0
 def dfs(dict, cardlist):
     global count1
-    print(count1)
+    #print(count1)
     if(len(cardlist) < 1 and is_valid(dict)):
         print("-----"+str(dict))
         return True

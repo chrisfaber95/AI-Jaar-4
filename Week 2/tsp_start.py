@@ -67,8 +67,8 @@ def nearest_neighbor(cities):
         all_cities.remove(nearest[0])
     return route
 
-def nearest_neighbor_w_intersect(cities):    
-    all_cities = list(cities)
+def nearest_neighbor_w_intersect(cities):   
+    all_cities = list(cities.copy())
     route = [all_cities.pop(0)]
     while len(all_cities) > 0:
         nearest = [route[0],9999999]
@@ -78,22 +78,87 @@ def nearest_neighbor_w_intersect(cities):
                 nearest = [x, dist]
         route.append(nearest[0])
         all_cities.remove(nearest[0])
-        route = removeIntersects(route)
+        route = removeIntersects(route)[0]
+        #if len(route) > 4:
+        #    has_intersects = True
+        #    last = route[0]
+        #    while has_intersects:
+        #        intersecting = removeIntersects(route, last)
+        #        route = intersecting[0]
+        #        has_intersects = intersecting[1]
+        #        last = intersecting[2]
     return route
 
-def removeIntersects(route):
+def removeIntersects(route, last=()):
     intersecting = 0
     for index, y in enumerate(route):
-        if(index < len(route) - 3):
-            if intersect(y, route[index + 1], route[-2], route[-1]):
-                print("intersecting1111", route[index], route[index+1], route[-2], route[-1])
-                switching1 = route[index+1]
-                switching2 = route[-2]
-                route[index+1] = switching2
-                route[-2] = switching1
-                print("intersecting2222", route[index], route[index+1], route[-2], route[-1])
-                removeIntersects(route)
-    return route
+        if last != y and len(route) >= 4:
+            if(index < len(route) - 3):
+                if intersection_is_valid(y, route[index + 1], route[-2], route[-1]):
+                    print("intersecting1111", route[index], route[index+1], route[-2], route[-1])
+                    switching1 = route[index+1]
+                    switching2 = route[-2]
+                    route[index+1] = switching2
+                    route[-2] = switching1
+                    print("intersecting2222", route[index], route[index+1], route[-2], route[-1])
+                    return route, True, y
+            if index == len(route) - 3:
+                if intersection_is_valid(y, route[index + 1], route[-1], route[0]):
+                    print("intersecting1111", route[index], route[index+1], route[-1], route[0])
+                    switching1 = route[index+1]
+                    switching2 = route[-1]
+                    route[index+1] = switching2
+                    route[-1] = switching1
+                    return route, True, y
+            if index == len(route) - 2:
+                if intersection_is_valid(y, route[index + 1], route[0], route[1]):
+                    print("intersecting1111", route[index], route[index+1], route[0], route[1])
+                    switching1 = route[index+1]
+                    switching2 = route[0]
+                    route[index+1] = switching2
+                    route[0] = switching1
+                    return route, True, y
+            if index == len(route) - 1 and len(route) > 2:
+                if intersection_is_valid(y, route[0], route[1], route[2]):
+                    print("intersecting1111", route[index], route[0], route[1], route[2])
+                    switching1 = route[0]
+                    switching2 = route[1]
+                    route[1] = switching2
+                    route[0] = switching1
+                    return route, True, y
+        
+    return route, False, ()
+
+def calculate_slope(a, b):
+    if b.x-a.x == 0:
+        return b.x
+    else:
+        return (b.y - a.y)/(b.x-a.x)
+#lineformula => y = slope * x + (a.y - (slope* a.x))
+# intersect x => slope(a, b) * x + (a.y - (slope(a, b) * a.x)) = slope(c, d) * x + (c.y - (slope(c, d) * c.x))
+#    slope(a,b)+(slope(c,d)*-1)*x = (c.y - (slope(c, d) * c.x)) + ((a.y - (slope(a, b) * a.x))*-1)
+#    x = (c.y - (slope(c, d) * c.x)) + ((a.y - (slope(a, b) * a.x))*-1)/ slope(a,b)+(slope(c,d)*-1)
+#    y = 
+def calculate_x_intersect(a,b,c,d):
+    slope_ab = calculate_slope(a, b)
+    slope_cd = calculate_slope(c, d)
+    print(slope_ab, slope_cd)
+    x = (c.y - (slope_cd * c.x)) + ((a.y - (slope_ab * a.x))*-1)/ (slope_ab+(slope_cd*-1))
+    print(x)
+    return x
+
+def calculate_y_intersect(a,b,c,d):
+    y = calculate_slope(a, b) * calculate_x_intersect(a, b, c, d) + (a.y - (calculate_slope(a,b)* a.x))
+    print(y)
+    return y
+
+def intersection_is_valid(a,b,c,d):
+    x = calculate_x_intersect(a,b,c,d)
+    y = calculate_y_intersect(a,b,c,d)
+    if min([a.x,b.x,c.x,d.x]) < x < max([a.x,b.x,c.x,d.x]) and min([a.y,b.y,c.y,d.y]) < y < max([a.y,b.y,c.y,d.y]):
+        return True
+    else:
+        return False
 
 def shorter_route(A,B,C):
     return (C.y-A.y) * (B.x-A.x) > (B.y-A.y) * (C.x-A.x)
@@ -142,7 +207,7 @@ def doIntersect(p1,q1,p2,q2):
 # 10 city tour with length 3062.4 in 0.000 secs for nearest_neighbor
 #10 city tour with length 2305.8 in 1.766 secs for try_all_tours
 #opdracht b: 500 city tour with length 22253.4 in 0.047 secs for nearest_neighbor
-generated = make_cities(20)
+generated = make_cities(6)
 plot_tsp(nearest_neighbor, generated)
 # complexiteit 2-opt: O = n^3
 plot_tsp(nearest_neighbor_w_intersect, generated)
