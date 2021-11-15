@@ -86,12 +86,8 @@ def cover(r, row_valid, col_valid, row_has_1_at, col_has_1_at):
     #   cover all cols that have a 1 in row r
     #   cover all rows r' that intersect/overlap with row r
     # returns row_valid, col_valid
-    for col in r:
-        for index, row in enumerate(row_has_1_at): #cover rows overlap with r
-            if col in row:
-                row_valid[index] = 0
-        col_valid[col] = 0 #cover cols overlap with r
-    return row_valid, col_valid
+
+    pass
 
 def print_solution(solution, row_has_1_at):
     # place triominoes in matrix D 3 rows x 4 cols
@@ -115,29 +111,7 @@ def print_solution(solution, row_has_1_at):
 
 def solve(row_valid, col_valid, row_has_1_at, col_has_1_at, solution):
     # using Algoritm X, find all solutions (= set of rows) given valid/uncovered rows and cols
-    print(len(row_has_1_at))
-    lowestcol = []
-    lowestcolindex = -1
-    if 1 in col_valid:
-        for index, cols in enumerate(col_has_1_at):
-            if (len(cols) < len(lowestcol) or lowestcol == []) and col_valid[index] == 1:
-                lowestcol = cols
-                lowestcolindex = index
-        #lowestcolindex = col_has_1_at.index(min(available_col(col_has_1_at), key=len)) #stap 2
-        rand_in_solution = False
-        for index, row in enumerate(row_has_1_at):
-            if lowestcolindex in row:
-                if not rand_in_solution:
-                    solution.append(index) #voorlopige oplossing
-                    rand_in_solution = True
-                    cover(row, row_valid, col_valid, row_has_1_at, col_has_1_at)
-
-        
-        print(row_valid, col_valid)
-        solve(row_valid, col_valid, row_has_1_at, col_has_1_at, solution)
-    print(len(row_has_1_at))
-    #loop row_has_1_at over row_valid
-    print_solution(solution, row_has_1_at)
+    pass
 
 
 mx = make_matrix(triominoes)

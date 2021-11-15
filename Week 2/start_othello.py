@@ -232,7 +232,7 @@ def minimax_strategy(player, board):
     for move in moves:
         new_board = make_move(move, player, board[:])
         s1 = time.time()
-        score = basic_minimax(opponent(player), new_board, MAX_DEPTH, False, heuristic, None)
+        score = minimax(opponent(player), new_board, MAX_DEPTH, False, heuristic, None)
         s2 = time.time()
         print(f'[MINIMAX] Move {move}  Score: {score}  Time: {(s2 - s1) * 1000}')
         if score > top_score or not top_move:
@@ -243,7 +243,7 @@ def minimax_strategy(player, board):
     return top_move
     
 # TODO: pruning en betere heuristieke functie!
-def basic_minimax(player, board, depth, max_score, heuristic, time_limit):
+def minimax(player, board, depth, max_score, heuristic, time_limit):
     child_nodes = legal_moves(player, board)
 
     # Basecase, recursie diepte en spel einde
@@ -252,10 +252,10 @@ def basic_minimax(player, board, depth, max_score, heuristic, time_limit):
 
     # Als deze speler geen zet meer kan doen, dan kan de tegenstander wel
     if len(child_nodes) == 0:
-        return basic_minimax(opponent(player), board, depth, not max_score, heuristic, time_limit)
+        return minimax(opponent(player), board, depth, not max_score, heuristic, time_limit)
 
     scores = [
-            basic_minimax(opponent(player), make_move(node, player, board[:]), depth-1, not max_score, heuristic, time_limit)
+            minimax(opponent(player), make_move(node, player, board[:]), depth-1, not max_score, heuristic, time_limit)
             for node in child_nodes]
 
     if max_score:
